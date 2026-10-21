@@ -1,0 +1,64 @@
+C:\Users\Aldrin\source\repos\ImageProcessingApp\ImageProcessingApp\bin\Debug\net8.0-windows\ImageProcessingApp.exe
+C:\Users\Aldrin\source\repos\ImageProcessingApp\ImageProcessingApp\bin\Debug\net8.0-windows\ImageProcessingApp.deps.json
+C:\Users\Aldrin\source\repos\ImageProcessingApp\ImageProcessingApp\bin\Debug\net8.0-windows\ImageProcessingApp.runtimeconfig.json
+C:\Users\Aldrin\source\repos\ImageProcessingApp\ImageProcessingApp\bin\Debug\net8.0-windows\ImageProcessingApp.dll
+C:\Users\Aldrin\source\repos\ImageProcessingApp\ImageProcessingApp\bin\Debug\net8.0-windows\ImageProcessingApp.pdb
+C:\Users\Aldrin\source\repos\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.Form1.resources
+C:\Users\Aldrin\source\repos\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.csproj.GenerateResource.cache
+C:\Users\Aldrin\source\repos\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Aldrin\source\repos\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.AssemblyInfoInputs.cache
+C:\Users\Aldrin\source\repos\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.AssemblyInfo.cs
+C:\Users\Aldrin\source\repos\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.csproj.CoreCompileInputs.cache
+C:\Users\Aldrin\source\repos\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.dll
+C:\Users\Aldrin\source\repos\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\refint\ImageProcessingApp.dll
+C:\Users\Aldrin\source\repos\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.pdb
+C:\Users\Aldrin\source\repos\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.genruntimeconfig.cache
+C:\Users\Aldrin\source\repos\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ref\ImageProcessingApp.dll
+C:\Users\Aldrin\source\repos\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.csproj.AssemblyReference.cache
+C:\Users\Aldrin\source\repos\ImageProcessingApp\ImageProcessingApp\bin\Debug\net8.0-windows\AForge.dll
+C:\Users\Aldrin\source\repos\ImageProcessingApp\ImageProcessingApp\bin\Debug\net8.0-windows\AForge.Video.dll
+C:\Users\Aldrin\source\repos\ImageProcessingApp\ImageProcessingApp\bin\Debug\net8.0-windows\AForge.Video.DirectShow.dll
+C:\Users\Aldrin\source\repos\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImagePro.0C8AA664.Up2Date
+C:\Users\Aldrin\Source\Repos\ImgProcessingApp\ImageProcessingApp\ImageProcessingApp\bin\Debug\net8.0-windows\ImageProcessingApp.exe
+C:\Users\Aldrin\Source\Repos\ImgProcessingApp\ImageProcessingApp\ImageProcessingApp\bin\Debug\net8.0-windows\ImageProcessingApp.deps.json
+C:\Users\Aldrin\Source\Repos\ImgProcessingApp\ImageProcessingApp\ImageProcessingApp\bin\Debug\net8.0-windows\ImageProcessingApp.runtimeconfig.json
+C:\Users\Aldrin\Source\Repos\ImgProcessingApp\ImageProcessingApp\ImageProcessingApp\bin\Debug\net8.0-windows\ImageProcessingApp.dll
+C:\Users\Aldrin\Source\Repos\ImgProcessingApp\ImageProcessingApp\ImageProcessingApp\bin\Debug\net8.0-windows\ImageProcessingApp.pdb
+C:\Users\Aldrin\Source\Repos\ImgProcessingApp\ImageProcessingApp\ImageProcessingApp\bin\Debug\net8.0-windows\AForge.dll
+C:\Users\Aldrin\Source\Repos\ImgProcessingApp\ImageProcessingApp\ImageProcessingApp\bin\Debug\net8.0-windows\AForge.Video.dll
+C:\Users\Aldrin\Source\Repos\ImgProcessingApp\ImageProcessingApp\ImageProcessingApp\bin\Debug\net8.0-windows\AForge.Video.DirectShow.dll
+C:\Users\Aldrin\Source\Repos\ImgProcessingApp\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.csproj.AssemblyReference.cache
+C:\Users\Aldrin\Source\Repos\ImgProcessingApp\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.Form1.resources
+C:\Users\Aldrin\Source\Repos\ImgProcessingApp\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.csproj.GenerateResource.cache
+C:\Users\Aldrin\Source\Repos\ImgProcessingApp\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Aldrin\Source\Repos\ImgProcessingApp\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.AssemblyInfoInputs.cache
+C:\Users\Aldrin\Source\Repos\ImgProcessingApp\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.AssemblyInfo.cs
+C:\Users\Aldrin\Source\Repos\ImgProcessingApp\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.csproj.CoreCompileInputs.cache
+C:\Users\Aldrin\Source\Repos\ImgProcessingApp\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.sourcelink.json
+C:\Users\Aldrin\Source\Repos\ImgProcessingApp\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImagePro.0C8AA664.Up2Date
+C:\Users\Aldrin\Source\Repos\ImgProcessingApp\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.dll
+C:\Users\Aldrin\Source\Repos\ImgProcessingApp\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\refint\ImageProcessingApp.dll
+C:\Users\Aldrin\Source\Repos\ImgProcessingApp\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.pdb
+C:\Users\Aldrin\Source\Repos\ImgProcessingApp\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.genruntimeconfig.cache
+C:\Users\Aldrin\Source\Repos\ImgProcessingApp\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ref\ImageProcessingApp.dll
+C:\Users\Aldrin\Desktop\3rd Year\1ST SEM\CS345\ImageProcessingApp\ImageProcessingApp\bin\Debug\net8.0-windows\ImageProcessingApp.exe
+C:\Users\Aldrin\Desktop\3rd Year\1ST SEM\CS345\ImageProcessingApp\ImageProcessingApp\bin\Debug\net8.0-windows\ImageProcessingApp.deps.json
+C:\Users\Aldrin\Desktop\3rd Year\1ST SEM\CS345\ImageProcessingApp\ImageProcessingApp\bin\Debug\net8.0-windows\ImageProcessingApp.runtimeconfig.json
+C:\Users\Aldrin\Desktop\3rd Year\1ST SEM\CS345\ImageProcessingApp\ImageProcessingApp\bin\Debug\net8.0-windows\ImageProcessingApp.dll
+C:\Users\Aldrin\Desktop\3rd Year\1ST SEM\CS345\ImageProcessingApp\ImageProcessingApp\bin\Debug\net8.0-windows\ImageProcessingApp.pdb
+C:\Users\Aldrin\Desktop\3rd Year\1ST SEM\CS345\ImageProcessingApp\ImageProcessingApp\bin\Debug\net8.0-windows\AForge.dll
+C:\Users\Aldrin\Desktop\3rd Year\1ST SEM\CS345\ImageProcessingApp\ImageProcessingApp\bin\Debug\net8.0-windows\AForge.Video.dll
+C:\Users\Aldrin\Desktop\3rd Year\1ST SEM\CS345\ImageProcessingApp\ImageProcessingApp\bin\Debug\net8.0-windows\AForge.Video.DirectShow.dll
+C:\Users\Aldrin\Desktop\3rd Year\1ST SEM\CS345\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.csproj.AssemblyReference.cache
+C:\Users\Aldrin\Desktop\3rd Year\1ST SEM\CS345\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.Form1.resources
+C:\Users\Aldrin\Desktop\3rd Year\1ST SEM\CS345\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.csproj.GenerateResource.cache
+C:\Users\Aldrin\Desktop\3rd Year\1ST SEM\CS345\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Aldrin\Desktop\3rd Year\1ST SEM\CS345\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.AssemblyInfoInputs.cache
+C:\Users\Aldrin\Desktop\3rd Year\1ST SEM\CS345\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.AssemblyInfo.cs
+C:\Users\Aldrin\Desktop\3rd Year\1ST SEM\CS345\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.csproj.CoreCompileInputs.cache
+C:\Users\Aldrin\Desktop\3rd Year\1ST SEM\CS345\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImagePro.0C8AA664.Up2Date
+C:\Users\Aldrin\Desktop\3rd Year\1ST SEM\CS345\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.dll
+C:\Users\Aldrin\Desktop\3rd Year\1ST SEM\CS345\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\refint\ImageProcessingApp.dll
+C:\Users\Aldrin\Desktop\3rd Year\1ST SEM\CS345\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.pdb
+C:\Users\Aldrin\Desktop\3rd Year\1ST SEM\CS345\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ImageProcessingApp.genruntimeconfig.cache
+C:\Users\Aldrin\Desktop\3rd Year\1ST SEM\CS345\ImageProcessingApp\ImageProcessingApp\obj\Debug\net8.0-windows\ref\ImageProcessingApp.dll

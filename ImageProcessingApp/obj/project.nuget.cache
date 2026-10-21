@@ -1,0 +1,49 @@
+{
+  "version": 2,
+  "dgSpecHash": "nD68aCrY9m4=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Aldrin\\Desktop\\3rd Year\\1ST SEM\\CS345\\ImageProcessingApp\\ImageProcessingApp\\ImageProcessingApp.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Aldrin\\.nuget\\packages\\aforge\\2.2.5\\aforge.2.2.5.nupkg.sha512",
+    "C:\\Users\\Aldrin\\.nuget\\packages\\aforge.video\\2.2.5\\aforge.video.2.2.5.nupkg.sha512",
+    "C:\\Users\\Aldrin\\.nuget\\packages\\aforge.video.directshow\\2.2.5\\aforge.video.directshow.2.2.5.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "message": "Package 'AForge 2.2.5' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0-windows7.0'. This package may not be fully compatible with your project.",
+      "projectPath": "C:\\Users\\Aldrin\\Desktop\\3rd Year\\1ST SEM\\CS345\\ImageProcessingApp\\ImageProcessingApp\\ImageProcessingApp.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\Aldrin\\Desktop\\3rd Year\\1ST SEM\\CS345\\ImageProcessingApp\\ImageProcessingApp\\ImageProcessingApp.csproj",
+      "libraryId": "AForge",
+      "targetGraphs": [
+        "net8.0-windows7.0"
+      ]
+    },
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "message": "Package 'AForge.Video 2.2.5' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0-windows7.0'. This package may not be fully compatible with your project.",
+      "projectPath": "C:\\Users\\Aldrin\\Desktop\\3rd Year\\1ST SEM\\CS345\\ImageProcessingApp\\ImageProcessingApp\\ImageProcessingApp.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\Aldrin\\Desktop\\3rd Year\\1ST SEM\\CS345\\ImageProcessingApp\\ImageProcessingApp\\ImageProcessingApp.csproj",
+      "libraryId": "AForge.Video",
+      "targetGraphs": [
+        "net8.0-windows7.0"
+      ]
+    },
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "message": "Package 'AForge.Video.DirectShow 2.2.5' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0-windows7.0'. This package may not be fully compatible with your project.",
+      "projectPath": "C:\\Users\\Aldrin\\Desktop\\3rd Year\\1ST SEM\\CS345\\ImageProcessingApp\\ImageProcessingApp\\ImageProcessingApp.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\Aldrin\\Desktop\\3rd Year\\1ST SEM\\CS345\\ImageProcessingApp\\ImageProcessingApp\\ImageProcessingApp.csproj",
+      "libraryId": "AForge.Video.DirectShow",
+      "targetGraphs": [
+        "net8.0-windows7.0"
+      ]
+    }
+  ]
+}
