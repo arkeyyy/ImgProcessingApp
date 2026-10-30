@@ -207,4 +207,9 @@ public partial class Form1 : Form
         SystemEvents.UserPreferenceChanged -= OnUserPreferenceChanged;
         base.OnFormClosed(e);
     }
+
+    private void Form1_Load(object sender, EventArgs e)
+    {
+
+    }
 }

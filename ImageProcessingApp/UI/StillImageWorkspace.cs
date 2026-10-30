@@ -157,6 +157,10 @@ internal sealed class ImageWorkspaceLayout : Panel
     {
         if (_arranging || IsDisposed || _sections.Any(section => section is null)) return;
         _arranging = true;
+        // Measure both scrollbar widths as one layout transaction. In particular,
+        // wrapping labels must not relayout the entire filter table one by one.
+        _table.SuspendLayout();
+        foreach (var section in _sections) section!.SuspendLayout();
         try
         {
             float scale = DeviceDpi / 96f;
@@ -187,7 +191,12 @@ internal sealed class ImageWorkspaceLayout : Panel
             AutoScrollMinSize = new Size(0, minimumHeight);
             _table.SetBounds(AutoScrollPosition.X, AutoScrollPosition.Y, tableWidth, tableHeight);
         }
-        finally { _arranging = false; }
+        finally
+        {
+            foreach (var section in _sections) section!.ResumeLayout(true);
+            _table.ResumeLayout(true);
+            _arranging = false;
+        }
     }
 
     private static int Measure(Control control, int width)
@@ -218,6 +227,7 @@ internal sealed class StillImageWorkspace : AsyncImageWorkspace
     private readonly Label _guidance = Ui.Label("Every filter starts from the original image.", muted: true);
     private readonly Label _description = Ui.Label("Choose a filter. Focus a button to read how it works.", muted: true);
     private readonly List<Button> _filters = new();
+    private readonly CategorizedFilterPicker? _filterPicker;
     private readonly ToolTip _tips = new();
     private string? _resultEffect;
 
@@ -226,7 +236,9 @@ internal sealed class StillImageWorkspace : AsyncImageWorkspace
         _convolution = convolution;
         Dock = DockStyle.Fill;
         AccessibleName = convolution ? "Convolution workspace" : "Basic filters workspace";
-        var layout = ImageWorkspaceDialogs.Layout();
+        var layout = convolution
+            ? new ImageWorkspaceLayout(2, rowCount: 4, previewRow: 3)
+            : ImageWorkspaceDialogs.Layout();
         var actions = Ui.Flow();
         actions.Dock = DockStyle.Fill;
         actions.Controls.AddRange([_load, _save, _clear]);
@@ -234,7 +246,7 @@ internal sealed class StillImageWorkspace : AsyncImageWorkspace
         ImageWorkspaceDialogs.WrapLabel(_guidance);
         layout.AddSection(actions, 0);
         layout.AddSection(_guidance, 1);
-        layout.AddSection(new PreviewLayout(_original, _result), 2);
+        layout.AddSection(new PreviewLayout(_original, _result), convolution ? 3 : 2);
 
         var filterArea = new TableLayoutPanel
         {
@@ -243,23 +255,15 @@ internal sealed class StillImageWorkspace : AsyncImageWorkspace
             AutoSizeMode = AutoSizeMode.GrowAndShrink,
             ColumnCount = 1,
             RowCount = 0,
-            Margin = new Padding(0, 12, 0, 0),
+            Margin = convolution ? new Padding(0, 0, 0, 12) : new Padding(0, 12, 0, 0),
             ColumnStyles = { new ColumnStyle(SizeType.Percent, 100) }
         };
         if (convolution)
         {
-            AddFilterGroup(filterArea, "Smooth & sharpen",
-                ("Smooth", "Average neighboring pixels to soften fine detail."),
-                ("Gaussian Blur", "Use weighted neighboring pixels for a softer blur."),
-                ("Sharpen", "Increase contrast around details and edges."),
-                ("Mean Removal", "Emphasize fine details by subtracting nearby values."),
-                ("Laplacian", "Highlight sudden changes in intensity to reveal edges."));
-            AddFilterGroup(filterArea, "Emboss",
-                ("Horizontal + Vertical", "Create an embossed effect from horizontal and vertical edges."),
-                ("All Directions", "Reveal edge relief in all directions."),
-                ("Lossy", "Apply the original lossy emboss kernel for a stylized relief."),
-                ("Horizontal Only", "Emphasize horizontal edge relief."),
-                ("Vertical Only", "Emphasize vertical edge relief."));
+            _filterPicker = new CategorizedFilterPicker(ConvolutionFilters.All, "Convolution filter");
+            _filterPicker.FilterInvoked += async (_, e) => await ApplyFilterAsync(e.Filter.Name);
+            _description.Text = "Choose a category, then a filter to process the original image.";
+            ImageWorkspaceDialogs.AddAutoRow(filterArea, _filterPicker);
         }
         else
         {
@@ -272,7 +276,7 @@ internal sealed class StillImageWorkspace : AsyncImageWorkspace
         ImageWorkspaceDialogs.WrapLabel(_description);
         _description.Margin = new Padding(0, 4, 0, 0);
         ImageWorkspaceDialogs.AddAutoRow(filterArea, _description);
-        layout.AddSection(filterArea, 3);
+        layout.AddSection(filterArea, convolution ? 2 : 3);
         Controls.Add(layout);
 
         _load.Click += (_, _) => OpenImage();
@@ -353,6 +357,11 @@ internal sealed class StillImageWorkspace : AsyncImageWorkspace
             _result.SetImage(null);
             _document.SetResult(result);
             _resultEffect = effect;
+            if (_filterPicker is not null)
+            {
+                _filterPicker.SelectedFilter = ConvolutionFilters.All.Single(filter => filter.Name == effect);
+                _description.Text = _filterPicker.SelectedFilter.Description;
+            }
             RefreshPreviews();
             ReportStatus($"{effect} complete. Result is ready to save.");
         });
@@ -380,12 +389,18 @@ internal sealed class StillImageWorkspace : AsyncImageWorkspace
         _result.SetImage(null);
         _document.Clear();
         _resultEffect = null;
+        RefreshPreviews();
         UpdateActions();
         ReportStatus("Images cleared. Load an image to begin.");
     }
 
     private void RefreshPreviews()
     {
+        if (_filterPicker is not null && _resultEffect is null)
+        {
+            _filterPicker.SelectedFilter = null;
+            _description.Text = "Choose a category, then a filter to process the original image.";
+        }
         _original.SetImage(_document.Source, _document.FileName);
         _result.SetImage(_document.Result, _resultEffect is null ? null : $"{_resultEffect} · {_document.FileName}");
     }
@@ -400,11 +415,24 @@ internal sealed class StillImageWorkspace : AsyncImageWorkspace
         _clear.Enabled = ready && source is not null;
         _histogram.Enabled = ready && _document.HistogramSource is not null;
         foreach (var button in _filters) button.Enabled = ready && source is not null && !tooSmall;
+        if (_filterPicker is not null) _filterPicker.Enabled = ready && source is not null && !tooSmall;
         _guidance.Text = tooSmall
             ? "Convolution requires an image at least 3 × 3 pixels. Load a larger image to use these filters."
             : _convolution
                 ? "Every filter starts from the original. Transparent areas are flattened onto white for convolution."
                 : "Every filter starts from the original. Histogram analyzes the result when available, otherwise the original.";
+    }
+
+    public override Task DeactivateAsync()
+    {
+        _filterPicker?.CloseMenu();
+        return base.DeactivateAsync();
+    }
+
+    public override Task ShutdownAsync()
+    {
+        _filterPicker?.CloseMenu();
+        return base.ShutdownAsync();
     }
 
     protected override void Dispose(bool disposing)

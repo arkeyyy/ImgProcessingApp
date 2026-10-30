@@ -64,6 +64,14 @@ public sealed class ImageOperationsTests
     [DataRow("Lossy")]
     [DataRow("Horizontal Only")]
     [DataRow("Vertical Only")]
+    [DataRow("Motion Blur Horizontal")]
+    [DataRow("Motion Blur Vertical")]
+    [DataRow("Motion Blur Diagonal")]
+    [DataRow("Emboss NW–SE")]
+    [DataRow("Emboss NE–SW")]
+    [DataRow("Sobel Edges")]
+    [DataRow("Prewitt Edges")]
+    [DataRow("Scharr Edges")]
     public void EveryConvolutionReturnsIndependentResultAndKeepsBorders(string effect)
     {
         using var source = Pattern(7, 6);
@@ -78,7 +86,12 @@ public sealed class ImageOperationsTests
         Assert.AreEqual(PatternColor(3, 3), source.GetPixel(3, 3));
         for (int y = 0; y < source.Height; y++)
             for (int x = 0; x < source.Width; x++)
+            {
+                Assert.AreEqual(PatternColor(x, y), source.GetPixel(x, y));
+                if (x == 0 || y == 0 || x == source.Width - 1 || y == source.Height - 1)
+                    Assert.AreEqual(source.GetPixel(x, y), result.GetPixel(x, y));
                 Assert.AreEqual(result.GetPixel(x, y), repeated.GetPixel(x, y));
+            }
     }
 
     [TestMethod]

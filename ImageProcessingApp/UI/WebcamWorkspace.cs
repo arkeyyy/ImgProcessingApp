@@ -37,7 +37,10 @@ internal sealed class WebcamWorkspace : WorkspaceControl, IThemeAware
     private readonly Label _connection = Ui.Label("Camera: Not checked", muted: true);
     private readonly ImagePreviewControl _original = new("Camera", "Choose a camera and select Start Camera.");
     private readonly ImagePreviewControl _result = new("Live Result", "Choose an effect to preview it live.");
-    private readonly List<RoundedRadioButton> _effects = [];
+    private readonly CategorizedFilterPicker _effectPicker = new(
+        WebcamEffects.All.Select(effect => new FilterChoice(effect.Name, effect.Category, effect.Description)),
+        "Webcam effect");
+    private readonly Label _effectDescription = Ui.Label("", muted: true);
     private readonly object _frameLock = new();
     private readonly System.Windows.Forms.Timer _startupTimer = new() { Interval = 15000 };
     private VideoCaptureDevice? _source;
@@ -75,42 +78,23 @@ internal sealed class WebcamWorkspace : WorkspaceControl, IThemeAware
         var effectLabel = Ui.Label("Effect:");
         effectLabel.Margin = new Padding(0, 10, 8, 0);
         effectRow.Controls.Add(effectLabel);
-        foreach (var effect in new[] { "None", "Grayscale", "Invert", "Sepia", "Subtract" })
+        _effectPicker.SelectedFilter = new FilterChoice(WebcamEffects.All[0].Name,
+            WebcamEffects.All[0].Category, WebcamEffects.All[0].Description);
+        _effectPicker.FilterInvoked += (_, e) =>
         {
-            var option = new RoundedRadioButton
-            {
-                Text = effect,
-                AccessibleName = $"{effect} camera effect",
-                AccessibleDescription = effect == "Subtract"
-                    ? "Replaces pixels close to the brightness of green with black."
-                    : $"Apply {effect.ToLowerInvariant()} to each new camera frame.",
-                Appearance = Appearance.Button,
-                AutoSize = true,
-                MinimumSize = new Size(72, 36),
-                Padding = new Padding(8, 4, 8, 4),
-                Margin = new Padding(0, 0, 8, 8),
-                TextAlign = ContentAlignment.MiddleCenter,
-                FlatStyle = FlatStyle.Flat,
-                UseVisualStyleBackColor = false,
-                Checked = effect == "None"
-            };
-            option.CheckedChanged += (_, _) =>
-            {
-                if (!option.Checked) return;
-                _effect = effect;
-                ApplyTheme(ThemeManager.Current);
-                if (_state == CameraState.Running)
-                    ReportStatus($"Camera running · {effect} effect");
-            };
-            _effects.Add(option);
-            effectRow.Controls.Add(option);
-        }
+            _effect = e.Filter.Name;
+            _effectPicker.SelectedFilter = e.Filter;
+            DescribeEffect(WebcamEffects.All.Single(effect => effect.Name == e.Filter.Name));
+            if (_state == CameraState.Running)
+                ReportStatus($"Camera running · {e.Filter.Name} effect");
+        };
+        effectRow.Controls.Add(_effectPicker);
         layout.AddSection(effectRow, 2);
-        var explanation = Ui.Label("Effects apply to each original frame. Subtract uses brightness-based keying to black. Leaving this tab stops the camera.", muted: true);
-        explanation.Dock = DockStyle.Fill;
-        explanation.Margin = new Padding(0, 0, 0, 12);
-        explanation.MaximumSize = new Size(1100, 0);
-        layout.AddSection(explanation, 3);
+        _effectDescription.Dock = DockStyle.Fill;
+        _effectDescription.Margin = new Padding(0, 0, 0, 12);
+        _effectDescription.MaximumSize = new Size(1100, 0);
+        DescribeEffect(WebcamEffects.All[0]);
+        layout.AddSection(_effectDescription, 3);
         layout.AddSection(new PreviewLayout(_original, _result), 4);
         Controls.Add(layout);
 
@@ -131,6 +115,9 @@ internal sealed class WebcamWorkspace : WorkspaceControl, IThemeAware
         UpdateActions();
         ReportStatus("Open the Webcam tab to check available cameras.");
     }
+
+    private void DescribeEffect(WebcamEffect effect) => _effectDescription.Text =
+        $"{effect.Name}: {effect.Description} Effects apply to each original frame. Leaving this tab stops the camera.";
 
     protected override void OnVisibleChanged(EventArgs e)
     {
@@ -236,7 +223,7 @@ internal sealed class WebcamWorkspace : WorkspaceControl, IThemeAware
         {
             var effect = _effect;
             original = (Bitmap)args.Frame.Clone();
-            result = ImageOperations.ApplyBasic(original, effect == "None" ? "Copy Original" : effect);
+            result = WebcamEffects.Apply(original, effect);
             frame = new PreviewFrame(original, result, ticket, generation, effect);
             original = null;
             result = null;
@@ -428,11 +415,16 @@ internal sealed class WebcamWorkspace : WorkspaceControl, IThemeAware
             (active || _cameras.SelectedItem is CameraChoice);
     }
 
-    public override Task DeactivateAsync() => StopCameraAsync();
+    public override Task DeactivateAsync()
+    {
+        _effectPicker.CloseMenu();
+        return StopCameraAsync();
+    }
 
     public override async Task ShutdownAsync()
     {
         _shuttingDown = true;
+        _effectPicker.CloseMenu();
         await StopCameraAsync();
         if (_source is not null)
         {
@@ -447,8 +439,7 @@ internal sealed class WebcamWorkspace : WorkspaceControl, IThemeAware
 
     public void ApplyTheme(ThemePalette palette)
     {
-        foreach (var option in _effects)
-            option.ApplyTheme(palette);
+        _effectPicker.ApplyTheme(palette);
     }
 
     protected override void Dispose(bool disposing)

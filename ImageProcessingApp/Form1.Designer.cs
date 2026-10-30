@@ -17,15 +17,19 @@ partial class Form1
 
     private void InitializeComponent()
     {
-        components = new System.ComponentModel.Container();
         SuspendLayout();
-        AutoScaleDimensions = new SizeF(96F, 96F);
+        // 
+        // Form1
+        // 
+        AutoScaleDimensions = new SizeF(120F, 120F);
         AutoScaleMode = AutoScaleMode.Dpi;
-        ClientSize = new Size(1200, 760);
-        MinimumSize = new Size(640, 480);
-        StartPosition = FormStartPosition.CenterScreen;
+        ClientSize = new Size(1500, 950);
+        Margin = new Padding(4, 4, 4, 4);
+        MinimumSize = new Size(796, 588);
         Name = "Form1";
+        StartPosition = FormStartPosition.CenterScreen;
         Text = "Image Processing App";
+        Load += Form1_Load;
         ResumeLayout(false);
     }
 }

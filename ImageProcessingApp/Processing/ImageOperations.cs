@@ -122,6 +122,35 @@ internal static class ImageOperations
                 "Lossy" => BitmapFilter.EmbossLossy(result, cancellationToken),
                 "Horizontal Only" => BitmapFilter.EmbossHorizontalOnly(result, cancellationToken),
                 "Vertical Only" => BitmapFilter.EmbossVerticalOnly(result, cancellationToken),
+                "Motion Blur Horizontal" => BitmapFilter.Conv3x3(result, new ConvMatrix
+                {
+                    MidLeft = 1, Pixel = 1, MidRight = 1, Factor = 3
+                }, cancellationToken),
+                "Motion Blur Vertical" => BitmapFilter.Conv3x3(result, new ConvMatrix
+                {
+                    TopMid = 1, Pixel = 1, BottomMid = 1, Factor = 3
+                }, cancellationToken),
+                "Motion Blur Diagonal" => BitmapFilter.Conv3x3(result, new ConvMatrix
+                {
+                    TopLeft = 1, Pixel = 1, BottomRight = 1, Factor = 3
+                }, cancellationToken),
+                "Emboss NW–SE" => BitmapFilter.Conv3x3(result, new ConvMatrix
+                {
+                    TopLeft = -2, TopMid = -1, TopRight = 0,
+                    MidLeft = -1, Pixel = 0, MidRight = 1,
+                    BottomLeft = 0, BottomMid = 1, BottomRight = 2,
+                    Offset = 128
+                }, cancellationToken),
+                "Emboss NE–SW" => BitmapFilter.Conv3x3(result, new ConvMatrix
+                {
+                    TopLeft = 0, TopMid = -1, TopRight = -2,
+                    MidLeft = 1, Pixel = 0, MidRight = -1,
+                    BottomLeft = 2, BottomMid = 1, BottomRight = 0,
+                    Offset = 128
+                }, cancellationToken),
+                "Sobel Edges" => ApplyGradientEdges(result, 1, 2, cancellationToken),
+                "Prewitt Edges" => ApplyGradientEdges(result, 1, 1, cancellationToken),
+                "Scharr Edges" => ApplyGradientEdges(result, 3, 10, cancellationToken),
                 _ => throw new ArgumentException("Unknown convolution effect.", nameof(effect))
             };
             if (!applied) throw new InvalidOperationException("The convolution kernel could not be applied.");
@@ -133,6 +162,49 @@ internal static class ImageOperations
             throw;
         }
     }
+
+    private static unsafe bool ApplyGradientEdges(Bitmap result, int a, int b, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var source = (Bitmap)result.Clone();
+        BitmapData? sourceData = null, resultData = null;
+        try
+        {
+            var bounds = new Rectangle(0, 0, result.Width, result.Height);
+            sourceData = source.LockBits(bounds, ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+            resultData = result.LockBits(bounds, ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+            // Leave the one-pixel border in the flattened RGB copy unchanged.
+            for (int y = 1; y < result.Height - 1; y++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                byte* top = (byte*)sourceData.Scan0 + (y - 1) * sourceData.Stride;
+                byte* middle = top + sourceData.Stride;
+                byte* bottom = middle + sourceData.Stride;
+                byte* destination = (byte*)resultData.Scan0 + y * resultData.Stride;
+                for (int x = 1; x < result.Width - 1; x++)
+                {
+                    int position = x * 3;
+                    int tl = Intensity(top + position - 3), tm = Intensity(top + position), tr = Intensity(top + position + 3);
+                    int ml = Intensity(middle + position - 3), mr = Intensity(middle + position + 3);
+                    int bl = Intensity(bottom + position - 3), bm = Intensity(bottom + position), br = Intensity(bottom + position + 3);
+                    // Signed gradients from [-a,0,a; -b,0,b; -a,0,a] and its transpose.
+                    int gx = a * (tr - tl + br - bl) + b * (mr - ml);
+                    int gy = a * (bl - tl + br - tr) + b * (bm - tm);
+                    int magnitude = (int)(Math.Sqrt((double)gx * gx + (double)gy * gy) / (2 * a + b));
+                    byte value = (byte)Math.Clamp(magnitude, 0, 255);
+                    destination[position] = destination[position + 1] = destination[position + 2] = value;
+                }
+            }
+            return true;
+        }
+        finally
+        {
+            if (resultData is not null) result.UnlockBits(resultData);
+            if (sourceData is not null) source.UnlockBits(sourceData);
+        }
+    }
+
+    private static unsafe int Intensity(byte* pixel) => (pixel[0] + pixel[1] + pixel[2]) / 3;
 
     public static unsafe Bitmap Subtract(Bitmap foreground, Bitmap background, CancellationToken cancellationToken = default)
     {
