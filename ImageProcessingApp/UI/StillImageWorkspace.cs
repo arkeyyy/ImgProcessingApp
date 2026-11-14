@@ -114,8 +114,9 @@ internal sealed class ImageWorkspaceLayout : Panel
     private readonly TableLayoutPanel _table = new()
     {
         ColumnCount = 1,
+        Dock = DockStyle.Top,
         Margin = Padding.Empty,
-        Padding = new Padding(16),
+        Padding = new Padding(0, 8, 0, 0),
         ColumnStyles = { new ColumnStyle(SizeType.Percent, 100) }
     };
     private readonly Control?[] _sections;
@@ -188,8 +189,9 @@ internal sealed class ImageWorkspaceLayout : Panel
                 tableWidth = desiredWidth;
             }
             int tableHeight = Math.Max(ClientSize.Height, minimumHeight);
+            // Shrink content before recomputing the native scrollbar ranges.
+            _table.Height = tableHeight;
             AutoScrollMinSize = new Size(0, minimumHeight);
-            _table.SetBounds(AutoScrollPosition.X, AutoScrollPosition.Y, tableWidth, tableHeight);
         }
         finally
         {

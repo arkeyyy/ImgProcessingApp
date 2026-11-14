@@ -1,4 +1,4 @@
-﻿namespace ImageProcessingApp;
+namespace ImageProcessingApp;
 
 partial class Form1
 {
@@ -21,11 +21,11 @@ partial class Form1
         // 
         // Form1
         // 
-        AutoScaleDimensions = new SizeF(120F, 120F);
+        AutoScaleDimensions = new SizeF(96F, 96F);
         AutoScaleMode = AutoScaleMode.Dpi;
-        ClientSize = new Size(1500, 950);
+        ClientSize = new Size(1200, 760);
         Margin = new Padding(4, 4, 4, 4);
-        MinimumSize = new Size(796, 588);
+        MinimumSize = new Size(720, 540);
         Name = "Form1";
         StartPosition = FormStartPosition.CenterScreen;
         Text = "Image Processing App";

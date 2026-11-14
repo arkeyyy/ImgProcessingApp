@@ -1,10 +1,10 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 
 namespace ImageProcessingApp;
 
-public partial class Form1 : Form
+public partial class Form1 : StudioForm
 {
-    private readonly ThemedTabControl _tabs = new() { Dock = DockStyle.Fill };
+    private readonly StudioNavigation _tabs = new() { Dock = DockStyle.Fill };
     private readonly ToolStripStatusLabel _status = new() { Spring = true, TextAlign = ContentAlignment.MiddleLeft };
     private readonly ToolStripProgressBar _progress = new() { Style = ProgressBarStyle.Marquee, MarqueeAnimationSpeed = 30, Visible = false, Width = 100 };
     private readonly List<WorkspaceControl> _workspaces = [];
@@ -13,92 +13,75 @@ public partial class Form1 : Form
     private bool _shutdownComplete;
     private RadioButton? _lightTheme;
     private RadioButton? _darkTheme;
+    private CheckBox? _reduceMotion;
 
     public Form1()
     {
+        SuspendLayout();
         InitializeComponent();
         ThemeManager.Initialize();
         BuildShell();
         ThemeManager.ThemeChanged += OnThemeChanged;
         SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
         ThemeManager.Apply(this);
+        ResumeLayout(true);
     }
 
     private void BuildShell()
     {
-        var shell = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = Padding.Empty };
+        var shell = new StudioBackdrop { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 4, Padding = Padding.Empty };
         shell.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        shell.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         shell.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         shell.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         shell.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        var header = new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, ColumnCount = 2, RowCount = 1, Padding = new Padding(24, 20, 24, 16), Margin = Padding.Empty, Tag = "surface" };
-        header.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        header.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-        var identity = new FlowLayoutPanel { AutoSize = true, FlowDirection = FlowDirection.TopDown, WrapContents = false, Dock = DockStyle.Fill, Margin = Padding.Empty, Tag = "surface" };
-        var title = Ui.Label("Image Processing", heading: true);
-        title.Font = new Font("Segoe UI", 20, FontStyle.Bold);
-        title.Tag = "surface";
-        identity.Controls.Add(title);
-        var subtitle = Ui.Label("Explore, compare, and understand your images.", muted: true);
-        identity.Controls.Add(subtitle);
-        identity.SizeChanged += (_, _) => subtitle.MaximumSize = new Size(Math.Max(100, identity.ClientSize.Width), 0);
+        var header = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, FlowDirection = FlowDirection.TopDown,
+            WrapContents = false, Padding = new Padding(StudioMetrics.Gutter, 16, StudioMetrics.Gutter, 16), Margin = Padding.Empty, BackColor = Color.Transparent, Tag = "ambient" };
+        var title = Ui.Label("Your creative workspace", heading: true);
+        var subtitle = Ui.Label("Explore filters, compare results, and make something new.", muted: true);
+        title.Tag = "ambient";
+        subtitle.Tag = "ambient-muted";
+        header.Controls.AddRange([title, subtitle]);
+        header.SizeChanged += (_, _) => subtitle.MaximumSize = new Size(Math.Max(100, header.ClientSize.Width - header.Padding.Horizontal), 0);
         var appearance = Ui.Flow();
         appearance.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         appearance.Dock = DockStyle.None;
         appearance.WrapContents = false;
         appearance.Tag = "surface";
-        var themeLabel = Ui.Label("Appearance");
-        themeLabel.Margin = new Padding(0, 10, 12, 0);
         var light = new RoundedRadioButton { Text = "Light", AccessibleName = "Light theme", AutoSize = true, Padding = new Padding(12, 6, 12, 6), Checked = !ThemeManager.IsDark, Margin = new Padding(0, 0, 4, 0) };
         var dark = new RoundedRadioButton { Text = "Dark", AccessibleName = "Dark theme", AutoSize = true, Padding = new Padding(12, 6, 12, 6), Checked = ThemeManager.IsDark, Margin = Padding.Empty };
         _lightTheme = light;
         _darkTheme = dark;
         light.CheckedChanged += (_, _) => { if (light.Checked) ChangeTheme(false); };
         dark.CheckedChanged += (_, _) => { if (dark.Checked) ChangeTheme(true); };
-        appearance.Controls.AddRange([themeLabel, light, dark]);
-        header.Controls.Add(identity, 0, 0);
-        header.Controls.Add(appearance, 1, 0);
-        bool? compactHeader = null;
-        header.SizeChanged += (_, _) =>
+        _reduceMotion = new CheckBox { Text = "Reduce motion", AccessibleName = "Reduce motion", AutoSize = true,
+            Checked = ThemeManager.ReduceMotion, Margin = new Padding(12, 8, 16, 0) };
+        _reduceMotion.CheckedChanged += (_, _) =>
         {
-            bool compact = header.Width * 96 / Math.Max(96, header.DeviceDpi) < 850;
-            if (compactHeader == compact) return;
-            compactHeader = compact;
-            header.SuspendLayout();
-            header.Controls.Clear();
-            header.ColumnStyles.Clear();
-            header.RowStyles.Clear();
-            header.ColumnCount = compact ? 1 : 2;
-            header.RowCount = compact ? 2 : 1;
-            header.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-            if (!compact) header.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-            header.Controls.Add(identity, 0, 0);
-            header.Controls.Add(appearance, compact ? 0 : 1, compact ? 1 : 0);
-            appearance.Anchor = compact ? AnchorStyles.Left : AnchorStyles.Top | AnchorStyles.Right;
-            appearance.Margin = compact ? new Padding(0, 12, 0, 0) : Padding.Empty;
-            header.ResumeLayout(true);
+            if (_reduceMotion.Checked != ThemeManager.ReduceMotion && !ThemeManager.SetReduceMotion(_reduceMotion.Checked))
+                _status.Text = "Motion preference changed, but could not be saved.";
         };
+        appearance.Controls.AddRange([light, dark, _reduceMotion]);
         AddWorkspace("Basic Filters", new StillImageWorkspace(false));
         AddWorkspace("Background Subtraction", new SubtractionWorkspace());
         AddWorkspace("Webcam", new WebcamWorkspace());
         AddWorkspace("Convolution", new StillImageWorkspace(true));
-        _tabs.Margin = new Padding(16, 12, 16, 0);
+        _tabs.Margin = new Padding(StudioMetrics.Gutter, 0, StudioMetrics.Gutter, 8);
         _tabs.SelectedIndexChanged += OnWorkspaceChanged;
         _activeWorkspace = _workspaces[0];
         var statusStrip = new StatusStrip { SizingGrip = false, ShowItemToolTips = true, Dock = DockStyle.Fill, Padding = new Padding(24, 4, 16, 4), AccessibleName = "Workspace status" };
         statusStrip.Items.AddRange([_status, _progress]);
-        shell.Controls.Add(header, 0, 0);
-        shell.Controls.Add(_tabs, 0, 1);
-        shell.Controls.Add(statusStrip, 0, 2);
+        shell.Controls.Add(CreateTitleBar(appearance), 0, 0);
+        shell.Controls.Add(header, 0, 1);
+        shell.Controls.Add(_tabs, 0, 2);
+        shell.Controls.Add(statusStrip, 0, 3);
         Controls.Add(shell);
         UpdateStatus();
     }
 
     private void AddWorkspace(string title, WorkspaceControl workspace)
     {
-        var tab = new TabPage(title) { Padding = Padding.Empty, UseVisualStyleBackColor = false };
-        tab.Controls.Add(workspace);
-        _tabs.TabPages.Add(tab);
+        _tabs.AddPage(title, workspace);
         _workspaces.Add(workspace);
         workspace.StatusChanged += (_, _) => { if (ReferenceEquals(_activeWorkspace, workspace)) UpdateStatus(); };
     }
@@ -130,6 +113,7 @@ public partial class Form1 : Form
         _progress.Visible = _activeWorkspace?.IsBusy ?? false;
         _status.AccessibleName = _status.Text;
         _status.ToolTipText = _status.Text;
+        _status.ForeColor = _activeWorkspace?.StatusIsError == true ? ThemeManager.Current.Error : ThemeManager.Current.Muted;
     }
 
     private void OnThemeChanged(object? sender, EventArgs e)
@@ -137,7 +121,9 @@ public partial class Form1 : Form
         if (IsDisposed || Disposing) return;
         if (_lightTheme is not null) _lightTheme.Checked = !ThemeManager.IsDark;
         if (_darkTheme is not null) _darkTheme.Checked = ThemeManager.IsDark;
+        if (_reduceMotion is not null) _reduceMotion.Checked = ThemeManager.ReduceMotion;
         ThemeManager.Apply(this);
+        UpdateStatus();
     }
 
     private void OnUserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
@@ -154,8 +140,8 @@ public partial class Form1 : Form
         if (!_closing && (keyData == (Keys.Control | Keys.Tab) || keyData == (Keys.Control | Keys.Shift | Keys.Tab)))
         {
             int direction = keyData.HasFlag(Keys.Shift) ? -1 : 1;
-            _tabs.SelectedIndex = (_tabs.SelectedIndex + direction + _tabs.TabCount) % _tabs.TabCount;
-            _tabs.Focus();
+            _tabs.SelectedIndex = (_tabs.SelectedIndex + direction + _tabs.PageCount) % _tabs.PageCount;
+            _tabs.FocusNavigation();
             return true;
         }
         return base.ProcessCmdKey(ref msg, keyData);

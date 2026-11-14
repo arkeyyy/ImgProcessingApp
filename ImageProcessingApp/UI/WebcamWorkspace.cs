@@ -24,7 +24,7 @@ internal sealed class WebcamWorkspace : WorkspaceControl, IThemeAware
         public void Dispose() { Original.Dispose(); Result.Dispose(); }
     }
 
-    private readonly ComboBox _cameras = new()
+    private readonly StudioComboBox _cameras = new()
     {
         DropDownStyle = ComboBoxStyle.DropDownList,
         Width = 270,

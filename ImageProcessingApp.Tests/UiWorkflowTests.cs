@@ -18,9 +18,6 @@ public class UiWorkflowTests
         {
             try
             {
-                Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
-                Application.EnableVisualStyles();
-                Application.SetDefaultFont(new Font("Segoe UI", 10));
                 using var form = new Form1 { Opacity = 0, ShowInTaskbar = false };
                 form.Shown += async (_, _) =>
                 {
@@ -41,9 +38,9 @@ public class UiWorkflowTests
     private static async Task ExerciseAsync(Form1 form)
     {
         await Task.Delay(50);
-        var tabs = Descendants(form).OfType<ThemedTabControl>().Single();
-        Assert.AreEqual(4, tabs.TabCount);
-        var editors = Descendants(form).OfType<StillImageWorkspace>().ToArray();
+        var tabs = Descendants(form).OfType<StudioNavigation>().Single();
+        Assert.AreEqual(4, tabs.PageCount);
+        var editors = tabs.Pages.OfType<StillImageWorkspace>().ToArray();
         Assert.AreEqual(2, editors.Length);
         var basic = editors[0];
         var convolution = editors[1];
@@ -100,12 +97,14 @@ public class UiWorkflowTests
                 // The inactive Convolution tab must also adapt when it is next shown.
                 tabs.SelectedIndex = 0;
                 form.ClientSize = new Size(size.Width * form.DeviceDpi / 96, size.Height * form.DeviceDpi / 96);
-                for (int index = 0; index < tabs.TabCount; index++)
+                for (int index = 0; index < tabs.PageCount; index++)
                 {
                     tabs.SelectedIndex = index;
-                    await Task.Delay(40);
+                    await Task.Delay(220);
                     form.PerformLayout();
-                    var workspace = tabs.SelectedTab!.Controls.OfType<WorkspaceControl>().Single();
+                    foreach (var pill in Descendants(tabs).OfType<RoundedRadioButton>().Where(button => button.IsNavigation))
+                        Assert.IsTrue(pill.Parent!.ClientRectangle.Contains(pill.Bounds), "Navigation pills must fit their DPI-scaled strip.");
+                    var workspace = (WorkspaceControl)tabs.SelectedPage!;
                     Assert.IsTrue(workspace.Width > 100 && workspace.Height > 100);
                     foreach (var preview in Descendants(workspace).OfType<ImagePreviewControl>())
                         Assert.IsTrue(preview.Width > 100 && preview.Height > 100, "Preview must retain a usable size.");
@@ -140,9 +139,27 @@ public class UiWorkflowTests
         using (var histogram = new HistogramDialog(bins, "Result", "color-study.png") { Opacity = 0 })
         {
             histogram.Show(form);
-            await Task.Delay(40);
+            await Task.Delay(220);
             Assert.AreEqual(256, Descendants(histogram).OfType<DataGridView>().Single().Rows.Count);
-            if (!string.IsNullOrEmpty(folder)) Capture(histogram, Path.Combine(folder, "histogram-dark.png"));
+            var histogramViews = Descendants(histogram).OfType<StudioNavigation>().Single();
+            foreach (bool dark in new[] { false, true })
+            {
+                ThemeManager.SetDark(dark, persist: false);
+                foreach (var size in new[] { new Size(760, 520), new Size(480, 480) })
+                {
+                    histogram.ClientSize = new Size(size.Width * histogram.DeviceDpi / 96, size.Height * histogram.DeviceDpi / 96);
+                    for (int view = 0; view < histogramViews.PageCount; view++)
+                    {
+                        histogramViews.SelectedIndex = view;
+                        await Task.Delay(220);
+                        foreach (var pill in Descendants(histogramViews).OfType<RoundedRadioButton>())
+                            Assert.IsTrue(pill.Parent!.ClientRectangle.Contains(pill.Bounds), "Histogram pills must fit their DPI-scaled strip.");
+                        Assert.IsTrue(histogramViews.SelectedPage!.Height > 100, "Histogram content must remain usable at its minimum size.");
+                        if (!string.IsNullOrEmpty(folder))
+                            Capture(histogram, Path.Combine(folder, $"histogram-{(dark ? "dark" : "light")}-{view}-{size.Width}.png"));
+                    }
+                }
+            }
             histogram.Close();
         }
         Assert.AreSame(savedResult, basicDoc.Result, "Histogram must not replace the exported result.");
@@ -169,7 +186,7 @@ public class UiWorkflowTests
         ThemeManager.SetDark(false, persist: false);
     }
 
-    private static void VerifyConvolutionNavigation(Form form, ThemedTabControl tabs, StillImageWorkspace workspace)
+    private static void VerifyConvolutionNavigation(Form form, StudioNavigation tabs, StillImageWorkspace workspace)
     {
         var picker = Picker(workspace);
         var filterArea = picker.Parent!;

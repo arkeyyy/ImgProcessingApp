@@ -16,11 +16,20 @@
     <Compile Update="UI\StillImageWorkspace.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="UI\SubtractionWorkspace.cs">
+    <Compile Update="UI\StudioCaptionButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="UI\StudioComboBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="UI\StudioForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="UI\StudioNavigation.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="UI\ThemedTabControl.cs">
-      <SubType>Component</SubType>
+    <Compile Update="UI\SubtractionWorkspace.cs">
+      <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="UI\WebcamWorkspace.cs">
       <SubType>UserControl</SubType>

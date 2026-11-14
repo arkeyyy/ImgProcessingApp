@@ -20,11 +20,15 @@ Build output is isolated because the original repository includes tracked `bin` 
 
 Each workspace retains independent images. Clear Images releases that workspace's inputs and result. Saving supports PNG, JPEG, and BMP, with an explicit encoder for the chosen format. JPEG transparency is flattened onto white.
 
-Use **Light / Dark** to change appearance; the preference is saved under `%LOCALAPPDATA%\ImageProcessingApp\settings.json`. Windows High Contrast overrides the palette. Small windows stack previews and provide vertical scrolling. Native file dialogs and title bars follow Windows styling.
+Use **Light / Dark** to change appearance; the preference is saved under `%LOCALAPPDATA%\ImageProcessingApp\settings.json`. Windows High Contrast overrides the palette. Small windows stack previews and provide vertical scrolling. Native file dialogs remain available. The main window and Histogram share a compact custom title bar with native dragging, edge resizing, double-click maximize, window snapping, Alt+Space, and Alt+F4. Close requests await processing and camera shutdown.
 
-Both themes use indigo primary actions, teal Save buttons, and softly tinted filter controls. Buttons and selection toggles have rounded corners that scale with display DPI, with distinct keyboard-focus, hover, pressed, and disabled states. Image canvases stay neutral for comparing results.
+The creative workspace uses pill navigation, rounded preview cards, Bahnschrift headings (Segoe UI fallback), and Segoe UI body text. Light mode pairs off-white surfaces with violet actions; dark mode pairs charcoal surfaces with lavender accents. Save actions use teal. Spacing, 16-pixel card corners, and 10-pixel control corners scale with DPI. Focus rings, selected navigation states, disabled controls, and native menu keyboard behavior remain available. Image canvases and transparency checkerboards stay neutral and static.
 
-Shortcuts: **Ctrl+O** loads the active still-image workspace's main input; **Ctrl+S** saves its result; **Ctrl+Tab** / **Ctrl+Shift+Tab** switch workspaces. For either filter dropdown, use **Enter**, **Space**, or **Alt+Down** to open it, arrow keys to navigate categories and filters, **Enter** to apply, and **Escape** to dismiss without changing the selection. The current selection appears on the trigger and has a menu checkmark; its explanation appears underneath. Basic Filters keeps its existing buttons and focus explanations.
+**Reduce motion**, beside Light / Dark, persists in the same settings file. Older settings files remain valid and fresh installs start in light mode. Windows client-area animation preferences and High Contrast take precedence: either can disable motion even when the app toggle is off. The preference uses [Microsoft's documented client-area animation setting](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-systemparametersinfoa).
+
+With motion enabled, low-opacity lavender and teal shapes drift through the header and exposed gutters on a 24-second loop. Hover feedback takes 160 ms, presses 90 ms, and navigation selection 180 ms; actions and content switches happen immediately. Each window owns one disposable scheduler, running at about 30 FPS for ambient motion and up to 60 FPS for brief interactions. It pauses when the window is hidden, inactive, or minimized, and stops when idle. Cached gradients and shadows are regenerated for size, DPI, or theme changes. Animation does not move controls, relayout workspaces, invalidate image canvases, or modify image pixels. Custom-frame handling follows [Microsoft's DWM guidance](https://learn.microsoft.com/en-us/windows/win32/dwm/customframe).
+
+Shortcuts: **Ctrl+O** loads the active still-image workspace's main input; **Ctrl+S** saves its result; **Ctrl+Tab** / **Ctrl+Shift+Tab** switch workspaces. When navigation is focused, **Left/Right**, **Up/Down**, and **Home/End** select a workspace; the same controls work for Histogram's Chart / Values views. For either filter dropdown, use **Enter**, **Space**, or **Alt+Down** to open it, arrow keys to navigate categories and filters, **Enter** to apply, and **Escape** to dismiss without changing the selection. The current selection appears on the trigger and has a menu checkmark; its explanation appears underneath. Basic Filters keeps its existing buttons and focus explanations.
 
 ## Webcam effects
 
@@ -78,6 +82,16 @@ dotnet build ImageProcessingApp.sln --artifacts-path .artifacts -c Release
 
 Tests cover document ownership, result invalidation, original-based filters, convolution stride handling, cancellation, histogram source selection, transparency, subtraction bounds, explicit export formats, and detached source-file loading. New preset tests check numerical results, directional blur, constant images, signed edge transitions, emboss offsets, border preservation, all row-padding sizes, and minimum inputs. A hidden-window UI test exercises all workspaces and selects all 18 convolution menu items twice in both themes and wide/narrow layouts. It checks category membership, defaults, explanations, checkmarks, disabled and busy states, menu dismissal, Save availability, repeated filtering, clear, layout batching, preview placement, and histogram display. It opens each category submenu to check palette colors and screen bounds; optional captures include those popup menus. Webcam tests check every effect against its processing operation, select all 15 menu items, and send synthetic frames through the capture callback and preview publication, including dropping extra frames and stopping with a queued frame. Tests never start a camera.
 
+Studio tests additionally cover interrupted and reversed transitions, elapsed-time completion, reduced-motion policy and legacy settings, disabled input states, scheduler pause/stop/disposal, zero layout passes and preview invalidations during ambient ticks, navigation keyboard/accessibility state, eight resize edges at 96/120/144/192 DPI, native caption hit-testing, taskbar-aware maximize/restore, and awaited processing shutdown from the Close button, system command, and WM_CLOSE. Histogram captures include both views in both themes and wide/narrow layouts. Resize-edge tests at multiple DPI values do not replace visual inspection on those displays.
+
+Caption mouse tests also cover non-client press/double-click routing, capture loss, drag-away cancellation, and releasing capture before a window command. The optional visible-window checks send mouse messages directly to the title-bar buttons in both themes and verify minimize, maximize/restore, and close. They briefly show test windows but do not move or click the desktop pointer:
+
+```powershell
+$env:IMAGEPROCESSING_CAPTION_MOUSE_TESTS = "1"
+dotnet test ImageProcessingApp.sln --artifacts-path .artifacts -c Debug --filter FullyQualifiedName~CaptionMouseTests
+Remove-Item Env:IMAGEPROCESSING_CAPTION_MOUSE_TESTS
+```
+
 To save rendered UI previews while running the integration test:
 
 ```powershell
@@ -87,7 +101,7 @@ dotnet test ImageProcessingApp.sln --artifacts-path .artifacts -c Debug --filter
 
 Manual checks for a target machine:
 
-- Test 100%, 125%, 150%, and 200% display scaling, moving between monitors, keyboard navigation (including Enter/Space/Alt+Down, arrows, Enter, and Escape), Narrator, and Windows High Contrast. Inspect open menus and submenus near each screen edge, and confirm focus returns to the dropdown after dismissal.
+- Test 100%, 125%, 150%, and 200% display scaling, moving between monitors, drag/double-click maximize, snapping (including the Windows 11 maximize hover menu), edge/corner resizing, Alt+Space/Alt+F4, keyboard navigation (including Enter/Space/Alt+Down, arrows, Enter, and Escape), Narrator, and Windows High Contrast. Inspect open menus and submenus near each screen edge, and confirm focus returns to the dropdown after dismissal. Toggle Reduce motion, disable Windows animation effects, and verify that inactive/minimized windows stop decorative motion.
 - Check camera absence, capture startup failure, repeated start/stop, effect changes, disconnection, tab switching, and closing during capture. A driver that never completes shutdown can leave the window waiting; shutdown stays off the UI thread and confirmed stop failures allow retry.
 - Exercise canceled file dialogs, unreadable/corrupt images, unwritable save locations, and a large image while resizing or changing themes.
 

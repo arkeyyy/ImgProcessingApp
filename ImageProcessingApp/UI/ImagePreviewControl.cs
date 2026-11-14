@@ -3,7 +3,7 @@ using System.Drawing.Drawing2D;
 namespace ImageProcessingApp;
 
 /// <summary>Displays a borrowed image. The document/camera owns and disposes the bitmap.</summary>
-internal sealed class ImagePreviewControl : UserControl, IThemeAware
+internal sealed class ImagePreviewControl : StudioSurface, IThemeAware
 {
     private readonly Label _heading;
     private readonly Label _metadata;
@@ -15,10 +15,11 @@ internal sealed class ImagePreviewControl : UserControl, IThemeAware
     public ImagePreviewControl(string title, string emptyMessage)
     {
         DoubleBuffered = true;
+        AutoScaleDimensions = new SizeF(96, 96);
         AutoScaleMode = AutoScaleMode.Dpi;
         Dock = DockStyle.Fill;
-        Padding = new Padding(1);
-        Margin = new Padding(6);
+        Padding = new Padding(4);
+        Margin = new Padding(0, 0, 8, 8);
         AccessibleRole = AccessibleRole.Grouping;
         AccessibleName = title;
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Margin = Padding.Empty };
@@ -27,7 +28,7 @@ internal sealed class ImagePreviewControl : UserControl, IThemeAware
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         _heading = Ui.Label(title);
-        _heading.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+        StudioMetrics.OwnFont(_heading, StudioMetrics.Heading(11));
         _heading.Padding = new Padding(16, 12, 16, 12);
         _heading.Margin = Padding.Empty;
         _heading.Dock = DockStyle.Fill;
@@ -62,10 +63,10 @@ internal sealed class ImagePreviewControl : UserControl, IThemeAware
         _canvas.Invalidate();
     }
 
-    public void ApplyTheme(ThemePalette palette)
+    public override void ApplyTheme(ThemePalette palette)
     {
         _palette = palette;
-        BackColor = palette.Border;
+        base.ApplyTheme(palette);
         _heading.BackColor = _metadata.BackColor = palette.Surface;
         _heading.ForeColor = palette.Text;
         _metadata.ForeColor = palette.Muted;

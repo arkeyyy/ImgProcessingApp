@@ -6,13 +6,15 @@ internal sealed record ThemePalette(Color Background, Color Surface, Color Canva
     Color Muted, Color Border, Color Accent, Color OnAccent, Color AccentSurface,
     Color Success, Color OnSuccess, Color ControlBorder)
 {
+    public Color Error => SystemInformation.HighContrast ? SystemColors.WindowText
+        : Text.GetBrightness() > .5f ? Hex("#FFADB5") : Hex("#B42339");
     private static Color Hex(string value) => ColorTranslator.FromHtml(value);
-    public static ThemePalette Light { get; } = new(Hex("#F5F7FF"), Hex("#FFFFFF"), Hex("#E9EDF2"),
-        Hex("#172033"), Hex("#475569"), Hex("#CBD5E1"), Hex("#4F46E5"), Color.White,
-        Hex("#EEF2FF"), Hex("#0F766E"), Color.White, Hex("#7C8AA5"));
-    public static ThemePalette Dark { get; } = new(Hex("#101827"), Hex("#1E293B"), Hex("#151E2C"),
-        Hex("#F1F5F9"), Hex("#CBD5E1"), Hex("#475569"), Hex("#A5B4FC"), Hex("#172033"),
-        Hex("#283454"), Hex("#5EEAD4"), Hex("#172033"), Hex("#8290A8"));
+    public static ThemePalette Light { get; } = new(Hex("#F6F7FB"), Hex("#FFFFFF"), Hex("#E9EDF2"),
+        Hex("#252735"), Hex("#475569"), Hex("#CBD5E1"), Hex("#6658D9"), Color.White,
+        Hex("#F0EDFC"), Hex("#0F766E"), Color.White, Hex("#7C8AA5"));
+    public static ThemePalette Dark { get; } = new(Hex("#10131B"), Hex("#191E29"), Hex("#141720"),
+        Hex("#F1F5F9"), Hex("#CBD5E1"), Hex("#475569"), Hex("#B8ACFF"), Hex("#252735"),
+        Hex("#29243D"), Hex("#5EEAD4"), Hex("#252735"), Hex("#8290A8"));
     public static ThemePalette HighContrast => new(SystemColors.Control, SystemColors.Window,
         SystemColors.Window, SystemColors.WindowText, SystemColors.WindowText, SystemColors.WindowText,
         SystemColors.Highlight, SystemColors.HighlightText, SystemColors.Window,
@@ -29,21 +31,30 @@ internal static class ThemeManager
     private static readonly string SettingsPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ImageProcessingApp", "settings.json");
     public static bool IsDark { get; private set; }
+    public static bool ReduceMotion { get; private set; }
     public static ThemePalette Current => SystemInformation.HighContrast ? ThemePalette.HighContrast
         : IsDark ? ThemePalette.Dark : ThemePalette.Light;
     public static event EventHandler? ThemeChanged;
 
     public static void Initialize()
     {
+        IsDark = false;
+        ReduceMotion = false;
         try
         {
             if (File.Exists(SettingsPath))
-                IsDark = JsonSerializer.Deserialize<ThemeSettings>(File.ReadAllText(SettingsPath))?.DarkMode ?? false;
+            {
+                var settings = JsonSerializer.Deserialize<ThemeSettings>(File.ReadAllText(SettingsPath));
+                IsDark = settings?.DarkMode ?? false;
+                ReduceMotion = settings?.ReduceMotion ?? false;
+            }
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException)
         {
             IsDark = false;
+            ReduceMotion = false;
         }
+        ThemeChanged?.Invoke(null, EventArgs.Empty);
     }
 
     // A failed preference write must not prevent changing the current theme.
@@ -51,11 +62,22 @@ internal static class ThemeManager
     {
         IsDark = dark;
         ThemeChanged?.Invoke(null, EventArgs.Empty);
-        if (!persist) return true;
+        return !persist || SavePreferences();
+    }
+
+    public static bool SetReduceMotion(bool reduce, bool persist = true)
+    {
+        ReduceMotion = reduce;
+        ThemeChanged?.Invoke(null, EventArgs.Empty);
+        return !persist || SavePreferences();
+    }
+
+    private static bool SavePreferences()
+    {
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(SettingsPath)!);
-            File.WriteAllText(SettingsPath, JsonSerializer.Serialize(new ThemeSettings(dark)));
+            File.WriteAllText(SettingsPath, JsonSerializer.Serialize(new ThemeSettings(IsDark, ReduceMotion)));
             return true;
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
@@ -76,8 +98,9 @@ internal static class ThemeManager
     private static void ApplyControl(Control control, ThemePalette p)
     {
         string role = control.Tag as string ?? "";
-        control.ForeColor = role == "muted" ? p.Muted : p.Text;
-        control.BackColor = role == "surface" ? p.Surface : control.Parent?.BackColor ?? p.Background;
+        control.ForeColor = role.EndsWith("muted") ? p.Muted : p.Text;
+        control.BackColor = role.StartsWith("ambient") ? Color.Transparent : role == "surface" ? p.Surface
+            : control.Parent?.BackColor is Color parentColor && parentColor.A == 255 ? parentColor : p.Background;
         switch (control)
         {
             // These controls own their colors and interaction states through IThemeAware.
@@ -144,7 +167,7 @@ internal static class ThemeManager
         (int)(from.G + (to.G - from.G) * amount),
         (int)(from.B + (to.B - from.B) * amount));
 
-    private sealed record ThemeSettings(bool DarkMode);
+    internal sealed record ThemeSettings(bool DarkMode, bool ReduceMotion = false);
     private sealed class PaletteColorTable(ThemePalette p) : ProfessionalColorTable
     {
         public override Color StatusStripGradientBegin => p.Surface;

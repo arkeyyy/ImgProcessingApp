@@ -2,7 +2,7 @@ using System.Drawing.Drawing2D;
 
 namespace ImageProcessingApp;
 
-internal sealed class HistogramDialog : Form, IThemeAware
+internal sealed class HistogramDialog : StudioForm, IThemeAware
 {
     private readonly DataGridView _values;
 
@@ -10,13 +10,14 @@ internal sealed class HistogramDialog : Form, IThemeAware
     {
         ArgumentNullException.ThrowIfNull(values);
         if (values.Length != 256) throw new ArgumentException("A histogram must have 256 intensity bins.", nameof(values));
+        SuspendLayout();
         Text = $"Histogram · {sourceName}";
         AccessibleName = $"Intensity histogram for {sourceName.ToLowerInvariant()} image";
-        Font = new Font("Segoe UI", 10);
+        StudioMetrics.OwnFont(this, new Font("Segoe UI", 10));
         AutoScaleDimensions = new SizeF(96, 96);
         AutoScaleMode = AutoScaleMode.Dpi;
         ClientSize = new Size(760, 520);
-        MinimumSize = new Size(480, 360);
+        MinimumSize = new Size(480, 480);
         StartPosition = FormStartPosition.CenterParent;
         ShowInTaskbar = false;
         MinimizeBox = false;
@@ -24,7 +25,7 @@ internal sealed class HistogramDialog : Form, IThemeAware
         var layout = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            Padding = new Padding(16),
+            Padding = new Padding(24),
             ColumnCount = 1,
             RowCount = 4,
             ColumnStyles = { new ColumnStyle(SizeType.Percent, 100) },
@@ -38,14 +39,12 @@ internal sealed class HistogramDialog : Form, IThemeAware
         ImageWorkspaceDialogs.WrapLabel(heading);
         layout.Controls.Add(heading, 0, 0);
         long count = values.Sum(value => (long)value);
-        var info = Ui.Label($"{count:N0} pixels · Intensity is the average of red, green, and blue. Use the Values tab to read exact frequencies.", muted: true);
+        var info = Ui.Label($"{count:N0} pixels · Intensity: average RGB. Values lists all 256 bins.", muted: true);
         ImageWorkspaceDialogs.WrapLabel(info);
         layout.Controls.Add(info, 0, 1);
 
-        var tabs = new ThemedTabControl { Dock = DockStyle.Fill, AccessibleName = "Histogram views" };
-        var chartPage = new TabPage("Chart") { Padding = new Padding(8) };
-        chartPage.Controls.Add(new HistogramChart(values) { Dock = DockStyle.Fill });
-        var valuesPage = new TabPage("Values") { Padding = new Padding(8) };
+        var tabs = new StudioNavigation { Dock = DockStyle.Fill, AccessibleName = "Histogram views" };
+        var chart = new HistogramChart(values) { Dock = DockStyle.Fill };
         _values = new DataGridView
         {
             Dock = DockStyle.Fill,
@@ -65,8 +64,8 @@ internal sealed class HistogramDialog : Form, IThemeAware
         _values.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Intensity (0–255)", Name = "Intensity", SortMode = DataGridViewColumnSortMode.NotSortable });
         _values.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Frequency (pixels)", Name = "Frequency", SortMode = DataGridViewColumnSortMode.NotSortable, DefaultCellStyle = new DataGridViewCellStyle { Format = "N0" } });
         for (var intensity = 0; intensity < values.Length; intensity++) _values.Rows.Add(intensity, values[intensity]);
-        valuesPage.Controls.Add(_values);
-        tabs.TabPages.AddRange([chartPage, valuesPage]);
+        tabs.AddPage("Chart", chart);
+        tabs.AddPage("Values", _values);
         layout.Controls.Add(tabs, 0, 2);
 
         var footer = Ui.Flow();
@@ -78,9 +77,16 @@ internal sealed class HistogramDialog : Form, IThemeAware
         CancelButton = close;
         footer.Controls.Add(close);
         layout.Controls.Add(footer, 0, 3);
-        Controls.Add(layout);
+        var shell = new StudioBackdrop { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 2, Margin = Padding.Empty };
+        shell.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        shell.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        shell.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        shell.Controls.Add(CreateTitleBar(), 0, 0);
+        shell.Controls.Add(layout, 0, 1);
+        Controls.Add(shell);
         ThemeManager.ThemeChanged += OnThemeChanged;
         ThemeManager.Apply(this);
+        ResumeLayout(true);
     }
 
     public void ApplyTheme(ThemePalette palette)

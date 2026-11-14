@@ -48,12 +48,16 @@ internal static class Ui
         UseVisualStyleBackColor = false
     };
 
-    public static Label Label(string text, bool heading = false, bool muted = false) => new()
+    public static Label Label(string text, bool heading = false, bool muted = false)
     {
-        Text = text, AutoSize = true, UseMnemonic = false,
-        Font = new Font("Segoe UI", heading ? 16 : 10, heading ? FontStyle.Bold : FontStyle.Regular),
-        Tag = muted ? "muted" : null, Margin = new Padding(0, 0, 0, heading ? 8 : 4)
-    };
+        var label = new Label
+        {
+            Text = text, AutoSize = true, UseMnemonic = false,
+            Tag = muted ? "muted" : null, Margin = new Padding(0, 0, 0, heading ? 8 : 4)
+        };
+        StudioMetrics.OwnFont(label, heading ? StudioMetrics.Heading() : new Font("Segoe UI", 10));
+        return label;
+    }
 
     public static FlowLayoutPanel Flow() => new()
     {
